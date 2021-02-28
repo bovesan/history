@@ -3,8 +3,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getLinkCommand = exports.getYearStamp = exports.getMonthStamp = exports.getWeekStamp = exports.getDayStamp = void 0;
+exports.getLinkCommand = exports.getYearStamp = exports.getMonthStamp = exports.getWeekStamp = exports.getDayStamp = exports.dateDecode = exports.dateEncode = void 0;
 var child_process_1 = __importDefault(require("child_process"));
+function dateEncode(d) {
+    return d.toISOString().substr(0, 16).replace('T', ' ').replace(':', '');
+}
+exports.dateEncode = dateEncode;
+function dateDecode(date) {
+    return new Date(Date.parse(date.substr(0, 13) + ':' + date.substr(14)));
+}
+exports.dateDecode = dateDecode;
 function getDayStamp(d) {
     return d.toISOString().substr(0, 10);
 }

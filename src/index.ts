@@ -6,12 +6,14 @@ import path from 'path';
 import * as readline from 'readline'
 
 import {
+	dateEncode,
+	dateDecode,
 	getDayStamp,
 	getWeekStamp,
 	getMonthStamp,
 	getYearStamp,
 	getLinkCommand,
-} from './helpers';
+} from './functions';
 
 const maxSnapshots = {
 	daily: 7,
@@ -23,8 +25,8 @@ const maxSnapshots = {
 const description = `Usage:
 ${path.basename(process.argv[1])} sourceFolder destinationFolder`
 
-const timestampPattern = /\d{4}\-\d{2}\-\d{2} \d{2}\:\d{2}/
-// 2021-02-28 17:36
+const timestampPattern = /\d{4}\-\d{2}\-\d{2} \d{2}\d{2}/
+// 2021-02-28 1736
 
 let sourcePath = '';
 let destinationPath = '';
@@ -47,7 +49,7 @@ if (!sourcePath || !destinationPath){
 	process.exit(1);
 }
 const processStartedAt = new Date();
-const timestampNow = processStartedAt.toISOString().substr(0, 16).replace('T', ' ');
+const timestampNow = dateEncode(processStartedAt);
 
 console.log(`Source:      ${sourcePath}`);
 console.log(`Destination: ${destinationPath}`);
@@ -72,7 +74,7 @@ const snapshots: Snapshot[] = [];
 
 for (let entry of fs.readdirSync(destinationPath, {withFileTypes: true})){
 	if (entry.isDirectory() && timestampPattern.test(entry.name)){
-		const date = new Date(Date.parse(entry.name));
+		const date = dateDecode(entry.name);
 		const snapshot: Snapshot = {
 			name: entry.name,
 			date,

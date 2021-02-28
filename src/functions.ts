@@ -1,6 +1,12 @@
 import os from 'os';
 import child_process from 'child_process';
 
+export function dateEncode(d: Date){
+    return d.toISOString().substr(0, 16).replace('T', ' ').replace(':', '');
+}
+export function dateDecode(date: string){
+    return new Date(Date.parse(date.substr(0, 13)+':'+date.substr(14)));
+}
 export function getDayStamp(d: Date) {
     return d.toISOString().substr(0, 10);
 }

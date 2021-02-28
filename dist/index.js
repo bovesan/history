@@ -27,7 +27,7 @@ var child_process_1 = __importDefault(require("child_process"));
 var fs_1 = __importDefault(require("fs"));
 var path_1 = __importDefault(require("path"));
 var readline = __importStar(require("readline"));
-var helpers_1 = require("./helpers");
+var functions_1 = require("./functions");
 var maxSnapshots = {
     daily: 7,
     weekly: 4,
@@ -35,8 +35,8 @@ var maxSnapshots = {
     yearly: 0,
 };
 var description = "Usage:\n" + path_1.default.basename(process.argv[1]) + " sourceFolder destinationFolder";
-var timestampPattern = /\d{4}\-\d{2}\-\d{2} \d{2}\:\d{2}/;
-// 2021-02-28 17:36
+var timestampPattern = /\d{4}\-\d{2}\-\d{2} \d{2}\d{2}/;
+// 2021-02-28 1736
 var sourcePath = '';
 var destinationPath = '';
 for (var _i = 0, _a = process.argv.slice(2); _i < _a.length; _i++) {
@@ -57,7 +57,7 @@ if (!sourcePath || !destinationPath) {
     process.exit(1);
 }
 var processStartedAt = new Date();
-var timestampNow = processStartedAt.toISOString().substr(0, 16).replace('T', ' ');
+var timestampNow = functions_1.dateEncode(processStartedAt);
 console.log("Source:      " + sourcePath);
 console.log("Destination: " + destinationPath);
 fs_1.default.readdirSync(destinationPath, { withFileTypes: true });
@@ -77,15 +77,15 @@ var snapshots = [];
 for (var _b = 0, _c = fs_1.default.readdirSync(destinationPath, { withFileTypes: true }); _b < _c.length; _b++) {
     var entry = _c[_b];
     if (entry.isDirectory() && timestampPattern.test(entry.name)) {
-        var date = new Date(Date.parse(entry.name));
+        var date = functions_1.dateDecode(entry.name);
         var snapshot = {
             name: entry.name,
             date: date,
             roles: [],
         };
         snapshots.push(snapshot);
-        var day = helpers_1.getDayStamp(date);
-        if (day != helpers_1.getDayStamp(processStartedAt)) {
+        var day = functions_1.getDayStamp(date);
+        if (day != functions_1.getDayStamp(processStartedAt)) {
             if (snapshotCount.daily < maxSnapshots.daily) {
                 if (!slots.daily.includes(day)) {
                     slots.daily.push(day);
@@ -94,7 +94,7 @@ for (var _b = 0, _c = fs_1.default.readdirSync(destinationPath, { withFileTypes:
                 }
             }
             if (snapshotCount.weekly < maxSnapshots.weekly) {
-                var week = helpers_1.getWeekStamp(date);
+                var week = functions_1.getWeekStamp(date);
                 if (!slots.weekly.includes(week)) {
                     slots.weekly.push(week);
                     snapshotCount.weekly += 1;
@@ -102,7 +102,7 @@ for (var _b = 0, _c = fs_1.default.readdirSync(destinationPath, { withFileTypes:
                 }
             }
             if (snapshotCount.monthly < maxSnapshots.monthly) {
-                var month = helpers_1.getMonthStamp(date);
+                var month = functions_1.getMonthStamp(date);
                 if (!slots.monthly.includes(month)) {
                     slots.monthly.push(month);
                     snapshotCount.monthly += 1;
@@ -110,7 +110,7 @@ for (var _b = 0, _c = fs_1.default.readdirSync(destinationPath, { withFileTypes:
                 }
             }
             if (snapshotCount.yearly < maxSnapshots.yearly) {
-                var year = helpers_1.getYearStamp(date);
+                var year = functions_1.getYearStamp(date);
                 if (!slots.yearly.includes(year)) {
                     slots.yearly.push(year);
                     snapshotCount.yearly += 1;
@@ -128,7 +128,7 @@ for (var _d = 0, snapshots_1 = snapshots; _d < snapshots_1.length; _d++) {
     }
 }
 var fullSnapshotPath = path_1.default.join(destinationPath, timestampNow);
-var cmd = helpers_1.getLinkCommand(sourcePath, fullSnapshotPath);
+var cmd = functions_1.getLinkCommand(sourcePath, fullSnapshotPath);
 process.stdout.write("Creating " + timestampNow + " ...");
 var start = Date.now();
 child_process_1.default.spawnSync(cmd[0], cmd.slice(1));
