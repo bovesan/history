@@ -3,10 +3,10 @@ interface Snapshot {
 	date: Date;
 	roles: SnapshotRole[];
 }
-type SnapshotRole = 'none' | 'daily' | 'weekly' | 'monthly' | 'yearly';
+type SnapshotRole = 'none' | 'day' | 'week' | 'month' | 'year';
 interface Slots {
-	daily: string[];
-	weekly: string[];
-	monthly: string[];
-	yearly: string[];
+	day: string[];
+	week: string[];
+	month: string[];
+	year: string[];
 }
